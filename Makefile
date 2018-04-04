@@ -1,21 +1,14 @@
-ifneq (${http_proxy}${docker_http_proxy},)
- ifneq (${docker_http_proxy},)
-  BUILD_ARGS += --build-arg "http_proxy=${docker_http_proxy}"
- else
-  ifneq (${http_proxy},)
-   BUILD_ARGS += --build-arg "http_proxy=${http_proxy}"
-  endif
- endif
+HTTP_PROXY ?= ${http_proxy}
+HTTPS_PROXY ?= ${https_proxy}
+DOCKER_HTTP_PROXY ?= $(if ${docker_http_proxy},${docker_http_proxy},$(HTTP_PROXY))
+DOCKER_HTTPS_PROXY ?= $(if ${docker_https_proxy},${docker_https_proxy},$(HTTPS_PROXY))
+
+ifneq ($(DOCKER_HTTP_PROXY),)
+BUILD_ARGS += --build-arg "http_proxy=${DOCKER_HTTP_PROXY}"
 endif
 
-ifneq (${https_proxy}${docker_https_proxy},)
- ifneq (${docker_https_proxy},)
-  BUILD_ARGS += --build-arg "https_proxy=${docker_https_proxy}"
- else
-  ifneq (${https_proxy},)
-   BUILD_ARGS += --build-arg "https_proxy=${https_proxy}"
-  endif
- endif
+ifneq ($(DOCKER_HTTPS_PROXY),)
+BUILD_ARGS += --build-arg "https_proxy=$(DOCKER_HTTPS_PROXY)"
 endif
 
 IMAGE_ROOT = lboulard
