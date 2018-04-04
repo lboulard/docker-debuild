@@ -28,65 +28,49 @@ IMAGES += raspbian-stretch-debuild
 
 all: $(IMAGES)
 
+define IMAGE_NAME =
+$(word 1,$(subst -, ,$1))-$(word 3,$(subst -, ,$1)):$(word 2,$(subst -, ,$1))
+endef
+
+define DOCKER_BUILD_templ =
+docker build $(BUILD_ARGS) -t "$(IMAGE_ROOT)/$(call IMAGE_NAME,$1)" $1
+endef
+
 debian-stretch-dev:
-	D=$(word 1,$(subst -, ,$@)) R=$(word 2,$(subst -, ,$@)) K=$(word 3,$(subst -, ,$@)) \
-	 IMG="$(IMAGE_ROOT)/$${D}-$${K}:$${R}"; \
-	docker build $(BUILD_ARGS) -t "$$IMG" $@
+	$(call DOCKER_BUILD_templ,$@)
 
 debian-stretch-debuild:
-	D=$(word 1,$(subst -, ,$@)) R=$(word 2,$(subst -, ,$@)) K=$(word 3,$(subst -, ,$@)) \
-	 IMG="$(IMAGE_ROOT)/$${D}-$${K}:$${R}"; \
-	docker build $(BUILD_ARGS) -t "$$IMG" $@
+	$(call DOCKER_BUILD_templ,$@)
 
 ubuntu-bionic-dev:
-	D=$(word 1,$(subst -, ,$@)) R=$(word 2,$(subst -, ,$@)) K=$(word 3,$(subst -, ,$@)) \
-	 IMG="$(IMAGE_ROOT)/$${D}-$${K}:$${R}"; \
-	docker build $(BUILD_ARGS) -t "$$IMG" $@
+	$(call DOCKER_BUILD_templ,$@)
 
 ubuntu-bionic-debuild:
-	D=$(word 1,$(subst -, ,$@)) R=$(word 2,$(subst -, ,$@)) K=$(word 3,$(subst -, ,$@)) \
-	 IMG="$(IMAGE_ROOT)/$${D}-$${K}:$${R}"; \
-	docker build $(BUILD_ARGS) -t "$$IMG" $@
+	$(call DOCKER_BUILD_templ,$@)
 
 ubuntu-artful-dev:
-	D=$(word 1,$(subst -, ,$@)) R=$(word 2,$(subst -, ,$@)) K=$(word 3,$(subst -, ,$@)) \
-	 IMG="$(IMAGE_ROOT)/$${D}-$${K}:$${R}"; \
-	docker build $(BUILD_ARGS) -t "$$IMG" $@
+	$(call DOCKER_BUILD_templ,$@)
 
 ubuntu-artful-debuild:
-	D=$(word 1,$(subst -, ,$@)) R=$(word 2,$(subst -, ,$@)) K=$(word 3,$(subst -, ,$@)) \
-	 IMG="$(IMAGE_ROOT)/$${D}-$${K}:$${R}"; \
-	docker build $(BUILD_ARGS) -t "$$IMG" $@
+	$(call DOCKER_BUILD_templ,$@)
 
 ubuntu-xenial-dev:
-	D=$(word 1,$(subst -, ,$@)) R=$(word 2,$(subst -, ,$@)) K=$(word 3,$(subst -, ,$@)) \
-	 IMG="$(IMAGE_ROOT)/$${D}-$${K}:$${R}"; \
-	docker build $(BUILD_ARGS) -t "$$IMG" $@
+	$(call DOCKER_BUILD_templ,$@)
 
 ubuntu-xenial-debuild:
-	D=$(word 1,$(subst -, ,$@)) R=$(word 2,$(subst -, ,$@)) K=$(word 3,$(subst -, ,$@)) \
-	 IMG="$(IMAGE_ROOT)/$${D}-$${K}:$${R}"; \
-	docker build $(BUILD_ARGS) -t "$$IMG" $@
+	$(call DOCKER_BUILD_templ,$@)
 
 ubuntu-trusty-dev:
-	D=$(word 1,$(subst -, ,$@)) R=$(word 2,$(subst -, ,$@)) K=$(word 3,$(subst -, ,$@)) \
-	 IMG="$(IMAGE_ROOT)/$${D}-$${K}:$${R}"; \
-	docker build $(BUILD_ARGS) -t "$$IMG" $@
+	$(call DOCKER_BUILD_templ,$@)
 
 ubuntu-trusty-debuild:
-	D=$(word 1,$(subst -, ,$@)) R=$(word 2,$(subst -, ,$@)) K=$(word 3,$(subst -, ,$@)) \
-	 IMG="$(IMAGE_ROOT)/$${D}-$${K}:$${R}"; \
-	docker build $(BUILD_ARGS) -t "$$IMG" $@
+	$(call DOCKER_BUILD_templ,$@)
 
 raspbian-stretch-dev:
-	D=$(word 1,$(subst -, ,$@)) R=$(word 2,$(subst -, ,$@)) K=$(word 3,$(subst -, ,$@)) \
-	 IMG="$(IMAGE_ROOT)/$${D}-$${K}:$${R}"; \
-	docker build $(BUILD_ARGS) -t "$$IMG" $@
+	$(call DOCKER_BUILD_templ,$@)
 
 raspbian-stretch-debuild:
-	D=$(word 1,$(subst -, ,$@)) R=$(word 2,$(subst -, ,$@)) K=$(word 3,$(subst -, ,$@)) \
-	 IMG="$(IMAGE_ROOT)/$${D}-$${K}:$${R}"; \
-	docker build $(BUILD_ARGS) -t "$$IMG" $@
+	$(call DOCKER_BUILD_templ,$@)
 
 docker-clean:
 	@IMGS=$$(docker images | grep "^<none>" | awk '{print $$3}'); \
