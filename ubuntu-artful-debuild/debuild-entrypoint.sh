@@ -5,6 +5,8 @@ set -e
 if [ -n "$UID" -a -n "$GID" ]; then
 	groupadd -g $GID guest
 	useradd -r -u $UID -g $GID guest
+elif [ -n "$UID" ]; then
+	useradd -r -u $UID guest
 fi
 
 # behave as init 1 to handle signal and wait process
