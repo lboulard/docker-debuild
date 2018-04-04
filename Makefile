@@ -15,6 +15,10 @@ IMAGE_ROOT = lboulard
 
 IMAGES += debian-stretch-dev
 IMAGES += debian-stretch-debuild
+IMAGES += ubuntu-bionic-dev
+IMAGES += ubuntu-bionic-debuild
+IMAGES += ubuntu-artful-dev
+IMAGES += ubuntu-artful-debuild
 IMAGES += ubuntu-xenial-dev
 IMAGES += ubuntu-xenial-debuild
 IMAGES += ubuntu-trusty-dev
@@ -30,6 +34,26 @@ debian-stretch-dev:
 	docker build $(BUILD_ARGS) -t "$$IMG" $@
 
 debian-stretch-debuild:
+	D=$(word 1,$(subst -, ,$@)) R=$(word 2,$(subst -, ,$@)) K=$(word 3,$(subst -, ,$@)) \
+	 IMG="$(IMAGE_ROOT)/$${D}-$${K}:$${R}"; \
+	docker build $(BUILD_ARGS) -t "$$IMG" $@
+
+ubuntu-bionic-dev:
+	D=$(word 1,$(subst -, ,$@)) R=$(word 2,$(subst -, ,$@)) K=$(word 3,$(subst -, ,$@)) \
+	 IMG="$(IMAGE_ROOT)/$${D}-$${K}:$${R}"; \
+	docker build $(BUILD_ARGS) -t "$$IMG" $@
+
+ubuntu-bionic-debuild:
+	D=$(word 1,$(subst -, ,$@)) R=$(word 2,$(subst -, ,$@)) K=$(word 3,$(subst -, ,$@)) \
+	 IMG="$(IMAGE_ROOT)/$${D}-$${K}:$${R}"; \
+	docker build $(BUILD_ARGS) -t "$$IMG" $@
+
+ubuntu-artful-dev:
+	D=$(word 1,$(subst -, ,$@)) R=$(word 2,$(subst -, ,$@)) K=$(word 3,$(subst -, ,$@)) \
+	 IMG="$(IMAGE_ROOT)/$${D}-$${K}:$${R}"; \
+	docker build $(BUILD_ARGS) -t "$$IMG" $@
+
+ubuntu-artful-debuild:
 	D=$(word 1,$(subst -, ,$@)) R=$(word 2,$(subst -, ,$@)) K=$(word 3,$(subst -, ,$@)) \
 	 IMG="$(IMAGE_ROOT)/$${D}-$${K}:$${R}"; \
 	docker build $(BUILD_ARGS) -t "$$IMG" $@

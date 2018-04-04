@@ -38,6 +38,14 @@ debuild-stretch() {
     debuild-docker debian lboulard/debian-debuild:stretch $@
 }
 
+debuild-bionic() {
+    debuild-docker ubuntu lboulard/ubuntu-debuild:bionic $@
+}
+
+debuild-artful() {
+    debuild-docker ubuntu lboulard/ubuntu-debuild:artful $@
+}
+
 debuild-xenial() {
     debuild-docker ubuntu lboulard/ubuntu-debuild:xenial $@
 }
