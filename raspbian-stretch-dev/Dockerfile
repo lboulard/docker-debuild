@@ -1,5 +1,7 @@
 FROM resin/rpi-raspbian:stretch
 
+RUN [ "cross-build-start" ]
+
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive \
        apt-get install -q -y --no-install-recommends apt-utils \
@@ -71,3 +73,5 @@ RUN apt-get update \
         eatmydata \
     && apt-get clean -q -y \
     && rm -rf /var/lib/apt/lists/*
+
+RUN [ "cross-build-end" ]
