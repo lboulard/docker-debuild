@@ -2,3 +2,9 @@
 *.bak
 *.sw[a-z]
 \#*\#
+
+*.pyc
+.ninja_deps
+.ninja_log
+
+*/.build

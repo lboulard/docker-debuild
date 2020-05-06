@@ -1,0 +1,129 @@
+# Generated using python3 -m mk
+
+rule docker-build
+  command = docker build -t $image $source && touch $out
+  description = DOCKER $image
+  pool = console
+
+rule docker-push
+  command = docker push $image
+  description = PUSH $image
+  pool = console
+
+rule docker-rmi
+  command = docker rmi -f $images
+  description = RMI $images
+  pool = console
+
+# All images to build
+build debian-stretch-dev: phony debian-stretch-dev/.build
+build debian-stretch-dev/.build: docker-build debian-stretch-dev/Dockerfile
+  image = lboulard/debian-dev:stretch
+  source = debian-stretch-dev
+build ubuntu-bionic-dev: phony ubuntu-bionic-dev/.build
+build ubuntu-bionic-dev/.build: docker-build ubuntu-bionic-dev/Dockerfile
+  image = lboulard/ubuntu-dev:bionic
+  source = ubuntu-bionic-dev
+build ubuntu-trusty-dev: phony ubuntu-trusty-dev/.build
+build ubuntu-trusty-dev/.build: docker-build ubuntu-trusty-dev/Dockerfile
+  image = lboulard/ubuntu-dev:trusty
+  source = ubuntu-trusty-dev
+build ubuntu-xenial-dev: phony ubuntu-xenial-dev/.build
+build ubuntu-xenial-dev/.build: docker-build ubuntu-xenial-dev/Dockerfile
+  image = lboulard/ubuntu-dev:xenial
+  source = ubuntu-xenial-dev
+build debian-stretch-debuild: phony debian-stretch-debuild/.build
+build debian-stretch-debuild/.build: docker-build debian-stretch-debuild/Dockerfile | debian-stretch-dev
+  image = lboulard/debian-debuild:stretch
+  source = debian-stretch-debuild
+build ubuntu-bionic-debuild: phony ubuntu-bionic-debuild/.build
+build ubuntu-bionic-debuild/.build: docker-build ubuntu-bionic-debuild/Dockerfile | ubuntu-bionic-dev
+  image = lboulard/ubuntu-debuild:bionic
+  source = ubuntu-bionic-debuild
+build ubuntu-trusty-debuild: phony ubuntu-trusty-debuild/.build
+build ubuntu-trusty-debuild/.build: docker-build ubuntu-trusty-debuild/Dockerfile | ubuntu-trusty-dev
+  image = lboulard/ubuntu-debuild:trusty
+  source = ubuntu-trusty-debuild
+build ubuntu-xenial-debuild: phony ubuntu-xenial-debuild/.build
+build ubuntu-xenial-debuild/.build: docker-build ubuntu-xenial-debuild/Dockerfile | ubuntu-xenial-dev
+  image = lboulard/ubuntu-debuild:xenial
+  source = ubuntu-xenial-debuild
+build raspbian-stretch-dev: phony raspbian-stretch-dev/.build
+build raspbian-stretch-dev/.build: docker-build raspbian-stretch-dev/Dockerfile
+  image = lboulard/raspbian-dev:stretch
+  source = raspbian-stretch-dev
+build raspbian-stretch-debuild: phony raspbian-stretch-debuild/.build
+build raspbian-stretch-debuild/.build: docker-build raspbian-stretch-debuild/Dockerfile | raspbian-stretch-dev
+  image = lboulard/raspbian-debuild:stretch
+  source = raspbian-stretch-debuild
+
+# Docker pushes
+build debian-stretch-dev-push: docker-push
+  image = lboulard/debian-dev:stretch
+build ubuntu-bionic-dev-push: docker-push
+  image = lboulard/ubuntu-dev:bionic
+build ubuntu-trusty-dev-push: docker-push
+  image = lboulard/ubuntu-dev:trusty
+build ubuntu-xenial-dev-push: docker-push
+  image = lboulard/ubuntu-dev:xenial
+build debian-stretch-debuild-push: docker-push | debian-stretch-dev-push
+  image = lboulard/debian-debuild:stretch
+build ubuntu-bionic-debuild-push: docker-push | ubuntu-bionic-dev-push
+  image = lboulard/ubuntu-debuild:bionic
+build ubuntu-trusty-debuild-push: docker-push | ubuntu-trusty-dev-push
+  image = lboulard/ubuntu-debuild:trusty
+build ubuntu-xenial-debuild-push: docker-push | ubuntu-xenial-dev-push
+  image = lboulard/ubuntu-debuild:xenial
+build raspbian-stretch-dev-push: docker-push
+  image = lboulard/raspbian-dev:stretch
+build raspbian-stretch-debuild-push: docker-push | raspbian-stretch-dev-push
+  image = lboulard/raspbian-debuild:stretch
+
+# Docker build per releases
+build debian-stretch: phony debian-stretch-dev debian-stretch-debuild
+build ubuntu-bionic: phony ubuntu-bionic-dev ubuntu-bionic-debuild
+build ubuntu-trusty: phony ubuntu-trusty-dev ubuntu-trusty-debuild
+build ubuntu-xenial: phony ubuntu-xenial-dev ubuntu-xenial-debuild
+build raspbian-stretch: phony raspbian-stretch-dev raspbian-stretch-debuild
+
+# Docker build per distributions
+build debian: phony debian-stretch-dev debian-stretch-debuild
+build ubuntu: phony ubuntu-bionic-dev ubuntu-trusty-dev ubuntu-xenial-dev ubuntu-bionic-debuild ubuntu-trusty-debuild $
+    ubuntu-xenial-debuild
+build raspbian: phony raspbian-stretch-dev raspbian-stretch-debuild
+
+# Build all images
+build images: phony debian-stretch ubuntu-bionic ubuntu-trusty ubuntu-xenial
+
+# Docker push per release
+build debian-stretch-push: phony debian-stretch-dev-push debian-stretch-debuild-push
+build ubuntu-bionic-push: phony ubuntu-bionic-dev-push ubuntu-bionic-debuild-push
+build ubuntu-trusty-push: phony ubuntu-trusty-dev-push ubuntu-trusty-debuild-push
+build ubuntu-xenial-push: phony ubuntu-xenial-dev-push ubuntu-xenial-debuild-push
+build raspbian-stretch-push: phony raspbian-stretch-dev-push raspbian-stretch-debuild-push
+
+# Docker push per distributions
+build debian-push: phony debian-stretch-dev-push debian-stretch-debuild-push
+build ubuntu-push: phony ubuntu-bionic-dev-push ubuntu-trusty-dev-push ubuntu-xenial-dev-push $
+    ubuntu-bionic-debuild-push ubuntu-trusty-debuild-push ubuntu-xenial-debuild-push
+build raspbian-push: phony raspbian-stretch-dev-push raspbian-stretch-debuild-push
+
+# Push all default images
+build push: phony debian-stretch-push ubuntu-bionic-push ubuntu-trusty-push ubuntu-xenial-push
+
+build clobber-debian-stretch: docker-rmi
+  images = lboulard/debian-dev:stretch lboulard/debian-debuild:stretch
+build clobber-ubuntu-bionic: docker-rmi
+  images = lboulard/ubuntu-dev:bionic lboulard/ubuntu-debuild:bionic
+build clobber-ubuntu-trusty: docker-rmi
+  images = lboulard/ubuntu-dev:trusty lboulard/ubuntu-debuild:trusty
+build clobber-ubuntu-xenial: docker-rmi
+  images = lboulard/ubuntu-dev:xenial lboulard/ubuntu-debuild:xenial
+build clobber-raspbian-stretch: docker-rmi
+  images = lboulard/raspbian-dev:stretch lboulard/raspbian-debuild:stretch
+
+# Destroy all images
+build clobber: phony clobber-debian-stretch clobber-ubuntu-bionic clobber-ubuntu-trusty clobber-ubuntu-xenial $
+    clobber-raspbian-stretch
+
+default images
