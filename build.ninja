@@ -16,6 +16,10 @@ rule docker-rmi
   pool = console
 
 # All images to build
+build debian-buster-dev: phony debian-buster-dev/.build
+build debian-buster-dev/.build: docker-build debian-buster-dev/Dockerfile
+  image = lboulard/debian-dev:buster
+  source = debian-buster-dev
 build debian-stretch-dev: phony debian-stretch-dev/.build
 build debian-stretch-dev/.build: docker-build debian-stretch-dev/Dockerfile
   image = lboulard/debian-dev:stretch
@@ -40,6 +44,10 @@ build ubuntu-xenial-dev: phony ubuntu-xenial-dev/.build
 build ubuntu-xenial-dev/.build: docker-build ubuntu-xenial-dev/Dockerfile
   image = lboulard/ubuntu-dev:xenial
   source = ubuntu-xenial-dev
+build debian-buster-debuild: phony debian-buster-debuild/.build
+build debian-buster-debuild/.build: docker-build debian-buster-debuild/Dockerfile | debian-buster-dev
+  image = lboulard/debian-debuild:buster
+  source = debian-buster-debuild
 build debian-stretch-debuild: phony debian-stretch-debuild/.build
 build debian-stretch-debuild/.build: docker-build debian-stretch-debuild/Dockerfile | debian-stretch-dev
   image = lboulard/debian-debuild:stretch
@@ -74,6 +82,8 @@ build raspbian-stretch-debuild/.build: docker-build raspbian-stretch-debuild/Doc
   source = raspbian-stretch-debuild
 
 # Docker pushes
+build debian-buster-dev-push: docker-push
+  image = lboulard/debian-dev:buster
 build debian-stretch-dev-push: docker-push
   image = lboulard/debian-dev:stretch
 build ubuntu-bionic-dev-push: docker-push
@@ -86,6 +96,8 @@ build ubuntu-trusty-dev-push: docker-push
   image = lboulard/ubuntu-dev:trusty
 build ubuntu-xenial-dev-push: docker-push
   image = lboulard/ubuntu-dev:xenial
+build debian-buster-debuild-push: docker-push | debian-buster-dev-push
+  image = lboulard/debian-debuild:buster
 build debian-stretch-debuild-push: docker-push | debian-stretch-dev-push
   image = lboulard/debian-debuild:stretch
 build ubuntu-bionic-debuild-push: docker-push | ubuntu-bionic-dev-push
@@ -104,6 +116,7 @@ build raspbian-stretch-debuild-push: docker-push | raspbian-stretch-dev-push
   image = lboulard/raspbian-debuild:stretch
 
 # Docker build per releases
+build debian-buster: phony debian-buster-dev debian-buster-debuild
 build debian-stretch: phony debian-stretch-dev debian-stretch-debuild
 build ubuntu-bionic: phony ubuntu-bionic-dev ubuntu-bionic-debuild
 build ubuntu-eoan: phony ubuntu-eoan-dev ubuntu-eoan-debuild
@@ -113,15 +126,16 @@ build ubuntu-xenial: phony ubuntu-xenial-dev ubuntu-xenial-debuild
 build raspbian-stretch: phony raspbian-stretch-dev raspbian-stretch-debuild
 
 # Docker build per distributions
-build debian: phony debian-stretch-dev debian-stretch-debuild
+build debian: phony debian-buster-dev debian-stretch-dev debian-buster-debuild debian-stretch-debuild
 build ubuntu: phony ubuntu-bionic-dev ubuntu-eoan-dev ubuntu-focal-dev ubuntu-trusty-dev ubuntu-xenial-dev $
     ubuntu-bionic-debuild ubuntu-eoan-debuild ubuntu-focal-debuild ubuntu-trusty-debuild ubuntu-xenial-debuild
 build raspbian: phony raspbian-stretch-dev raspbian-stretch-debuild
 
 # Build all images
-build images: phony debian-stretch ubuntu-bionic ubuntu-eoan ubuntu-focal ubuntu-trusty ubuntu-xenial
+build images: phony debian-buster debian-stretch ubuntu-bionic ubuntu-eoan ubuntu-focal ubuntu-trusty ubuntu-xenial
 
 # Docker push per release
+build debian-buster-push: phony debian-buster-dev-push debian-buster-debuild-push
 build debian-stretch-push: phony debian-stretch-dev-push debian-stretch-debuild-push
 build ubuntu-bionic-push: phony ubuntu-bionic-dev-push ubuntu-bionic-debuild-push
 build ubuntu-eoan-push: phony ubuntu-eoan-dev-push ubuntu-eoan-debuild-push
@@ -131,16 +145,19 @@ build ubuntu-xenial-push: phony ubuntu-xenial-dev-push ubuntu-xenial-debuild-pus
 build raspbian-stretch-push: phony raspbian-stretch-dev-push raspbian-stretch-debuild-push
 
 # Docker push per distributions
-build debian-push: phony debian-stretch-dev-push debian-stretch-debuild-push
+build debian-push: phony debian-buster-dev-push debian-stretch-dev-push debian-buster-debuild-push $
+    debian-stretch-debuild-push
 build ubuntu-push: phony ubuntu-bionic-dev-push ubuntu-eoan-dev-push ubuntu-focal-dev-push ubuntu-trusty-dev-push $
     ubuntu-xenial-dev-push ubuntu-bionic-debuild-push ubuntu-eoan-debuild-push ubuntu-focal-debuild-push $
     ubuntu-trusty-debuild-push ubuntu-xenial-debuild-push
 build raspbian-push: phony raspbian-stretch-dev-push raspbian-stretch-debuild-push
 
 # Push all default images
-build push: phony debian-stretch-push ubuntu-bionic-push ubuntu-eoan-push ubuntu-focal-push ubuntu-trusty-push $
-    ubuntu-xenial-push
+build push: phony debian-buster-push debian-stretch-push ubuntu-bionic-push ubuntu-eoan-push ubuntu-focal-push $
+    ubuntu-trusty-push ubuntu-xenial-push
 
+build clobber-debian-buster: docker-rmi
+  images = lboulard/debian-dev:buster lboulard/debian-debuild:buster
 build clobber-debian-stretch: docker-rmi
   images = lboulard/debian-dev:stretch lboulard/debian-debuild:stretch
 build clobber-ubuntu-bionic: docker-rmi
@@ -157,7 +174,7 @@ build clobber-raspbian-stretch: docker-rmi
   images = lboulard/raspbian-dev:stretch lboulard/raspbian-debuild:stretch
 
 # Destroy all images
-build clobber: phony clobber-debian-stretch clobber-ubuntu-bionic clobber-ubuntu-eoan clobber-ubuntu-focal $
-    clobber-ubuntu-trusty clobber-ubuntu-xenial clobber-raspbian-stretch
+build clobber: phony clobber-debian-buster clobber-debian-stretch clobber-ubuntu-bionic clobber-ubuntu-eoan $
+    clobber-ubuntu-focal clobber-ubuntu-trusty clobber-ubuntu-xenial clobber-raspbian-stretch
 
 default images
